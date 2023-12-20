@@ -3,10 +3,7 @@ from flask import Flask, jsonify
 import uuid
 from datetime import datetime
 from flask import request
-from dotenv import load_dotenv
 import os 
-
-load_dotenv()
 
 reddit = praw.Reddit(
     client_id=os.getenv('REDDIT_CLIENT_ID'),
