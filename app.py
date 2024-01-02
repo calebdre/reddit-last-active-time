@@ -4,11 +4,20 @@ import uuid
 from datetime import datetime
 from flask import request
 import os 
+from openai import OpenAI
+
+from dotenv import load_dotenv
+load_dotenv()
 
 reddit = praw.Reddit(
     client_id=os.getenv('REDDIT_CLIENT_ID'),
     client_secret=os.getenv('REDDIT_CLIENT_SECRET'),
     user_agent='Mozilla/5.0' + str(uuid.uuid4()),
+)
+
+client = OpenAI(
+    # This is the default and can be omitted
+    api_key=os.environ.get("OPENAI_API_KEY"),
 )
 
 def get_last_active_time(username):
@@ -53,5 +62,35 @@ def last_active_time():
     result = get_last_active_time(username)
     return jsonify(result)
 
+@app.route('/is_this_important', methods=['POST'])
+def is_this_imoprtant():
+    content = request.json['content']
+    selection = request.json['selection']
+
+    prompt = f"""Content:
+{content}
+Get an understanding of the content above and the main ideas it communicates. Assume that the reader wants to understand those ideas as quickly as possible while reading the article.
+
+Now, consider the following excerpt from the content:
+{selection}
+
+On a scale of 1-5, rate the excerpt based on how worth reading the selection is in terms of whether or not it's pertinent to the reader. Respond according to the following JSON format: {{ rating: number, explanation: string }}
+"""
+    chat_completion = client.chat.completions.create(
+        messages=[
+            {
+                "role": "user",
+                "content": prompt,
+            }
+        ],
+        model="gpt-4-1106-preview",
+    )
+
+    rating = chat_completion.choices[0].message.content
+    
+    return jsonify({"rating": rating})
+    
+    
+
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True)
