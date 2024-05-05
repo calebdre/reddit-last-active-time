@@ -83,13 +83,33 @@ On a scale of 1-5, rate the excerpt based on how worth reading the selection is 
                 "content": prompt,
             }
         ],
-        model="gpt-4-1106-preview",
+        model="gpt-4-turbo",
     )
 
     rating = chat_completion.choices[0].message.content
     
     return jsonify({"rating": rating})
+
+@app.route('/summarize', methods=['POST'])
+def summarize():
+    content = request.json['content']
+
+    prompt = f"""Content: {content}
+Provide a bullet-point summary of the content above. 
+"""
+    chat_completion = client.chat.completions.create(
+        messages=[
+            {
+                "role": "user",
+                "content": prompt,
+            }
+        ],
+        model="gpt-4-turbo",
+    )
+
+    summary = chat_completion.choices[0].message.content
     
+    return jsonify({"summary": summary})
     
 
 if __name__ == '__main__':
