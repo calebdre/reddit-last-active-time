@@ -1,5 +1,6 @@
 import praw
 from flask import Flask, jsonify
+from flask_cors import CORS, cross_origin
 import uuid
 from datetime import datetime
 from flask import request
@@ -50,6 +51,7 @@ def get_last_active_time(username):
 
 
 app = Flask(__name__)
+cors = CORS(app)
 
 @app.route('/last_active_time', methods=['GET'])
 def last_active_time():
