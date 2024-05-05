@@ -96,9 +96,8 @@ On a scale of 1-5, rate the excerpt based on how worth reading the selection is 
 def summarize():
     content = request.json['content']
 
-    prompt = f"""Content: {content}
-Provide a bullet-point summary of the content above. 
-"""
+    prompt = f"""Content: {content}</end>
+Write a brief abstract of the content above, then give a point by point breakdown of the content above. Format your response with markdown."""
     chat_completion = client.chat.completions.create(
         messages=[
             {
